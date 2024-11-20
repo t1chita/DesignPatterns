@@ -7,47 +7,60 @@
 
 import SwiftUI
 
-struct MusicsPageView: View {
+struct FavouritesPageView: View {
+    // Access shared `UserManager` to manage user data.
     @EnvironmentObject var userManager: UserManager
-    @State private var lastMusic = ""
+
+    // State variables for input fields to add a favorite music item.
+    @State private var favouriteMusic = ""
     @State private var duration = ""
     @State private var author = ""
 
     var body: some View {
         VStack {
-            TextField("Music Name", text: $lastMusic)
+            // Input field for the name of the favorite music track.
+            TextField("Music Name", text: $favouriteMusic)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
-            
+
+            // Input field for the duration of the music track.
             TextField("Duration (seconds)", text: $duration)
                 .keyboardType(.numberPad)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
-            
+
+            // Input field for the author of the music track.
             TextField("Author", text: $author)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
-            
-            Button("Change Last Music") {
+
+            // Button to add the input music track to the user's list of favorites.
+            Button("Add to Favourites") {
                 if let duration = Int(duration) {
-                    let music = Music(name: lastMusic, duration: duration, author: author)
-                    userManager.changeLastMusic(music: music)
+                    // Create a `Music` object and add it to the favorites list.
+                    let music = Music(name: favouriteMusic, duration: duration, author: author)
+                    userManager.addFavouriteMusic(music: music)
                 }
             }
             .buttonStyle(.borderedProminent)
             .padding()
-            
-            if let lastMusic = userManager.user?.lastMusic {
-                VStack {
-                    Text("Last Music: \(lastMusic.name)")
-                        .font(.headline)
-                    Text("By \(lastMusic.author)")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+
+            // Display a list of the user's favorite music tracks.
+            if let favourites = userManager.user?.favourites {
+                List(favourites, id: \.id) { music in
+                    VStack(alignment: .leading) {
+                        // Display the name of the music track.
+                        Text(music.name)
+                            .font(.headline)
+                        
+                        // Display the author of the music track.
+                        Text("By \(music.author)")
+                            .font(.subheadline)
+                    }
                 }
-                .padding()
             }
         }
-        .navigationTitle("Music Library")
+        // Set the navigation title for the favorites page.
+        .navigationTitle("Favourites")
     }
 }
